@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/flatly/bootstrap.min.css">
+  <title>GifTastic
+  </title>
+</head>
+<body>
+  <div class="container">
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <h1>Spiffy Giphy</h1>
+          </div>
+            <div class="col-md-3">
+              <img src ="images/PoweredBy_200_Horizontal_Light-Backgrounds_With_Logo.gif" alt="Giphy Logo"/>
+            </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+      <h2 class="text-center">Click a button and GIF away!</h2>
+  </div>
+    <!-- Buttons will show up here -->
+    <div id="buttons-view">
+    </div>
+    <div class="col-lg-8">
+        <form id="topic-form">
+            <label for="topic-input">Add another Giphy search button:</label>
+            <input type="text" id="topic-input">
+            <!-- Button triggers new topic to be added -->
+            <input id="add-topic" type="submit" value="Let's GIF!">
+        </form>
+      </div>
+      <!-- GIFs will show up here -->
+      <div class="text-center">
+          <div id="gifs-view">
+          </div>
+      </div>
+    </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript">
+  // Initial array of topics
+   var topicArr = ["butterfly", "honey bee", "pollinator", "sunflowers", "humming bird", "alpaca", "sengi"];
+   // function to get buttons to appear
+   function setButtons(){
+     $("#buttons-view").empty();
+     // Looping through the array of topics
+     for (var i = 0; i < topicArr.length; i++) {
+       // Then dynamicaly generating buttons for each topic in array
+       var a = $("<button>");
+       // Adding a class of "topic" to our button
+       a.addClass("topic");
+       // Adding a data-attribute
+       a.attr("data-topic", topicArr[i]);
+       // Providing the initial button text
+       a.text(topicArr[i]);
+       // Adding the button to the buttons-view div
+       $("#buttons-view").append(a);
+       // Adding click event listen listener to all buttons
+       $("button").on("click", function() {
+         // Grabbing and storing the data-topic property value from the button
+         var topic = $(this).attr("data-topic");
+         // Constructing a queryURL using the topic name
+         var queryURL = "http://api.giphy.com/v1/gifs/search?q=" +
+           topic + "&api_key=dc6zaTOxFJmzC&rating=g&limit=5";
+         // Performing an AJAX request with the queryURL
+         $.ajax({
+             url: queryURL,
+             method: "GET"
+           })
+           // After data comes back from the request
+           .done(function(response) {
+             console.log(queryURL);
+             console.log(response);
+             // storing the data from the AJAX request in the results variable
+             var results = response.data;
+             // Looping through each result item
+             for (var i = 0; i < results.length; i++) {
+               // Creating and storing a div tag
+               var topicDiv = $("<div>");
+               // Creating a paragraph tag with the result item's rating
+               var p = $("<p>").text("Rating: " + results[i].rating);
+               // Creating and storing an image tag
+               var topicImage = $("<img>");
+               // Setting the src attribute of the image to a property pulled off the result item
+               topicImage.attr("src", results[i].images.fixed_height_still.url);
+               topicImage.attr('data-still', results[i].images.fixed_height_still.url);
+               topicImage.attr("data-animate",results[i].images.fixed_height.url);
+               topicImage.attr('data-state', 'still');
+               topicImage.attr('data-state', 'animate');
+               topicImage.addClass("gif");
+               // Appending the paragraph and image tag to the topicDiv
+               topicDiv.append(p);
+               topicDiv.append(topicImage);
+               // Prependng the topicDiv to the HTML page in the "#gifs-view" div
+               $("#gifs-view").prepend(topicDiv);
+             }
+           });
+       });
+     }
+   }
+// This function handles events where topic button is clicked
+$("#add-topic").on("click", function(event) {
+  // Preventing the buttons default behavior when clicked (which is submitting a form)
+  event.preventDefault();
+  // This line grabs the input from the textbox
+  var topic = $("#topic-input").val().trim();
+  // Adding the topic from the textbox to our array
+  topicArr.push(topic);
+  $("#topic-input").val("");
+  setButtons();
+});
+//setting up "pause" and "start" for the GIFs
+$("img.gif").on("click", function() {
+  //attr jQuery method to get/set image "pause" or "animated" state
+  var state = $(this).attr("data-state");
+  // If the clicked image's state is still, update its src attribute to what its data-animate value is.
+   // Then, set the image's data-state to animate
+   // Else set src to the data-still value
+     if (state === "still") {
+       $(this).attr("src", $(this).attr("data-animate"));
+       $(this).attr("data-state", "animate");
+     } else {
+       $(this).attr("src", $(this).attr("data-still"));
+       $(this).attr("data-state", "still");
+     }
+   });
+$(document).ready(setButtons);
+</script>
+</body>
+</html>
