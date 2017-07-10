@@ -91,7 +91,6 @@
                topicImage.attr('data-still', results[i].images.fixed_height_still.url);
                topicImage.attr("data-animate",results[i].images.fixed_height.url);
                topicImage.attr('data-state', 'still');
-               topicImage.attr('data-state', 'animate');
                topicImage.addClass("gif");
                // Appending the paragraph and image tag to the topicDiv
                topicDiv.append(p);
@@ -115,7 +114,7 @@ $("#add-topic").on("click", function(event) {
   setButtons();
 });
 //setting up "pause" and "start" for the GIFs
-$("img.gif").on("click", function() {
+$("#gifs-view").on("click", ".gif",function() {
   //attr jQuery method to get/set image "pause" or "animated" state
   var state = $(this).attr("data-state");
   // If the clicked image's state is still, update its src attribute to what its data-animate value is.
